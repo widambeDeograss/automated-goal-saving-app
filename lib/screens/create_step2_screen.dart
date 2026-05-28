@@ -60,7 +60,7 @@ class _CreateStep2ScreenState extends State<CreateStep2Screen> {
                   const SizedBox(width: 48),
                 ],
               ),
-              const StepDots(total: 4, current: 1),
+              StepDots(total: _draft.kind == WalletType.group ? 4 : 3, current: 1),
 
               Text('Kiasi cha lengo', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: text)),
               const SizedBox(height: 4),
@@ -149,7 +149,7 @@ class _CreateStep2ScreenState extends State<CreateStep2Screen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: canProceed ? () => Navigator.of(context).pushNamed('/create/step3', arguments: _draft) : null,
+                  onPressed: canProceed ? () => Navigator.of(context).pushNamed('/create/lock', arguments: _draft) : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: canProceed ? AppColors.blue : Colors.grey[300],
                     foregroundColor: Colors.white,

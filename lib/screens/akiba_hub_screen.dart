@@ -20,6 +20,8 @@ class AkibaHubScreen extends StatelessWidget {
     final text = isDark ? AppColors.darkText : AppColors.lightText;
     final textSub = isDark ? AppColors.darkTextSub : AppColors.lightTextSub;
     final shadow = isDark ? const Color(0x66000000) : const Color(0x14000000);
+    final purple = isDark ? AppColors.purpleDark : AppColors.purple;
+    final purpleLight = isDark ? AppColors.purpleDarkBg : AppColors.purpleLight;
 
     return Consumer<WalletProvider>(
       builder: (context, provider, _) {
@@ -27,6 +29,8 @@ class AkibaHubScreen extends StatelessWidget {
         final totalBalance = provider.totalBalance;
         final totalGoal = provider.totalGoal;
         final overallPct = provider.overallPercent;
+        final invitations = provider.invitations;
+        final pendingForMe = provider.pendingForMe();
 
         return Scaffold(
           backgroundColor: bg,
@@ -37,29 +41,127 @@ class AkibaHubScreen extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   children: [
                     // Header
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Akiba ya Malengo', style: TextStyle(fontSize: 11, color: textSub, letterSpacing: 0.8)),
-                              Text('Mifuko Yangu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: text)),
-                            ],
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.notifications_none_rounded, color: textSub, size: 22),
-                            onPressed: () {},
-                          ),
-                        ],
+                    SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Akiba ya Malengo', style: TextStyle(fontSize: 11, color: textSub, letterSpacing: 0.8)),
+                                Text('Mifuko Yangu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: text)),
+                              ],
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                if (invitations.isNotEmpty) {
+                                  Navigator.of(context).pushNamed('/invitations');
+                                } else if (pendingForMe.isNotEmpty) {
+                                  Navigator.of(context).pushNamed('/approvals');
+                                }
+                              },
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Icon(Icons.notifications_none_rounded, color: textSub, size: 22),
+                                  ),
+                                  if (provider.notificationCount > 0)
+                                    Positioned(
+                                      top: 2,
+                                      right: 2,
+                                      child: Container(
+                                        width: 16, height: 16,
+                                        decoration: const BoxDecoration(color: AppColors.danger, shape: BoxShape.circle),
+                                        child: Center(
+                                          child: Text('${provider.notificationCount}', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700)),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
+                    // Invitations banner
+                    if (invitations.isNotEmpty)
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pushNamed('/invitations'),
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: purpleLight,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: purple.withAlpha(51)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 38, height: 38,
+                                decoration: BoxDecoration(color: purple, shape: BoxShape.circle),
+                                child: const Icon(Icons.mail_outline_rounded, size: 18, color: Colors.white),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Una mialiko ${invitations.length} mpya', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: purple)),
+                                    Text('Kubali ili kujiunga na kikundi cha akiba', style: TextStyle(fontSize: 11, color: textSub)),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.chevron_right_rounded, size: 18, color: purple),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    // Pending approvals banner
+                    if (pendingForMe.isNotEmpty)
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pushNamed('/approvals'),
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isDark ? AppColors.orangeDark : AppColors.orangeLight,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.orange.withAlpha(68)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 38, height: 38,
+                                decoration: const BoxDecoration(color: AppColors.orange, shape: BoxShape.circle),
+                                child: const Icon(Icons.notifications_active_outlined, size: 18, color: Colors.white),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Maombi ${pendingForMe.length} ya kutoa pesa', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.orange)),
+                                    Text('Yanasubiri uamuzi wako wa kikundi', style: TextStyle(fontSize: 11, color: textSub)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
                     // Summary Card
                     Container(
-                      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: AppColors.blue,
@@ -69,7 +171,7 @@ class AkibaHubScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Jumla ya Akiba', style: const TextStyle(fontSize: 10, color: Colors.white70, letterSpacing: 0.8)),
+                          const Text('Jumla ya Akiba', style: TextStyle(fontSize: 10, color: Colors.white70, letterSpacing: 0.8)),
                           const SizedBox(height: 4),
                           Text(_fmt(totalBalance), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white)),
                           const SizedBox(height: 2),
@@ -102,15 +204,15 @@ class AkibaHubScreen extends StatelessWidget {
                         children: [
                           Text('Mifuko (${wallets.length})', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: text)),
                           GestureDetector(
-                            onTap: () => Navigator.of(context).pushNamed('/create/step1'),
+                            onTap: () => Navigator.of(context).pushNamed('/create/choose'),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(color: AppColors.blueLight, borderRadius: BorderRadius.circular(20)),
+                              decoration: BoxDecoration(color: isDark ? AppColors.blueDark : AppColors.blueLight, borderRadius: BorderRadius.circular(20)),
                               child: Row(
                                 children: [
                                   const Icon(Icons.add, size: 14, color: AppColors.blue),
                                   const SizedBox(width: 4),
-                                  Text('Unda Mpya', style: TextStyle(fontSize: 12, color: AppColors.blue, fontWeight: FontWeight.w600)),
+                                  const Text('Unda Mpya', style: TextStyle(fontSize: 12, color: AppColors.blue, fontWeight: FontWeight.w600)),
                                 ],
                               ),
                             ),
@@ -120,7 +222,7 @@ class AkibaHubScreen extends StatelessWidget {
                     ),
 
                     // Wallet list
-                    if (wallets.isEmpty) _EmptyState(onTap: () => Navigator.of(context).pushNamed('/create/step1')),
+                    if (wallets.isEmpty) _EmptyState(onTap: () => Navigator.of(context).pushNamed('/create/choose')),
                     ...wallets.map((w) => _WalletCard(
                       wallet: w,
                       surface: surface,
@@ -128,8 +230,16 @@ class AkibaHubScreen extends StatelessWidget {
                       text: text,
                       textSub: textSub,
                       shadow: shadow,
+                      purple: purple,
+                      purpleLight: purpleLight,
                       fmt: _fmt,
-                      onTap: () => Navigator.of(context).pushNamed('/detail', arguments: w.id),
+                      onTap: () {
+                        if (w.isGroup) {
+                          Navigator.of(context).pushNamed('/group-detail', arguments: w.id);
+                        } else {
+                          Navigator.of(context).pushNamed('/detail', arguments: w.id);
+                        }
+                      },
                     )),
 
                     const SizedBox(height: 16),
@@ -150,31 +260,26 @@ class AkibaHubScreen extends StatelessWidget {
 
 class _WalletCard extends StatelessWidget {
   final Wallet wallet;
-  final Color surface;
-  final Color border;
-  final Color text;
-  final Color textSub;
-  final Color shadow;
+  final Color surface, border, text, textSub, shadow, purple, purpleLight;
   final String Function(int) fmt;
   final VoidCallback onTap;
 
   const _WalletCard({
-    required this.wallet,
-    required this.surface,
-    required this.border,
-    required this.text,
-    required this.textSub,
-    required this.shadow,
-    required this.fmt,
-    required this.onTap,
+    required this.wallet, required this.surface, required this.border,
+    required this.text, required this.textSub, required this.shadow,
+    required this.purple, required this.purpleLight,
+    required this.fmt, required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final pct = wallet.progressPercent;
     final done = wallet.isGoalReached;
-    final ringColor = done ? AppColors.success : wallet.color;
-    final badgeBg = done ? AppColors.success.withAlpha(30) : wallet.color.withAlpha(30);
+    final isGroup = wallet.isGroup;
+    final accent = isGroup ? purple : wallet.color;
+    final ringColor = done ? AppColors.success : accent;
+    final badgeBg = done ? AppColors.success.withAlpha(30) : accent.withAlpha(30);
+    final activeCount = wallet.activeMembers.length;
 
     return GestureDetector(
       onTap: onTap,
@@ -185,6 +290,7 @@ class _WalletCard extends StatelessWidget {
           color: surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [BoxShadow(color: shadow, blurRadius: 12, offset: const Offset(0, 2))],
+          border: isGroup ? Border(left: BorderSide(color: purple, width: 4)) : null,
         ),
         child: Row(
           children: [
@@ -194,14 +300,35 @@ class _WalletCard extends StatelessWidget {
               strokeWidth: 5,
               color: ringColor,
               bgColor: border,
-              child: Text(wallet.emoji, style: const TextStyle(fontSize: 20)),
+              child: Text(wallet.emoji, style: TextStyle(fontSize: isGroup ? 18 : 20)),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(wallet.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: text), overflow: TextOverflow.ellipsis),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(wallet.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: text), overflow: TextOverflow.ellipsis),
+                      ),
+                      if (isGroup) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: purpleLight, borderRadius: BorderRadius.circular(8)),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.group_outlined, size: 9, color: purple),
+                              const SizedBox(width: 3),
+                              Text('$activeCount', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: purple)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                   const SizedBox(height: 2),
                   Text('${fmt(wallet.balance)} / ${fmt(wallet.goal)}', style: TextStyle(fontSize: 12, color: textSub)),
                   const SizedBox(height: 8),

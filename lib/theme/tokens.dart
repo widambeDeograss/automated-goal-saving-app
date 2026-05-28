@@ -8,6 +8,10 @@ class AppColors {
   static const orange = Color(0xFFF6A800);
   static const orangeLight = Color(0xFFFFF5E0);
   static const orangeDark = Color(0xFF3A2A00);
+  static const purple = Color(0xFF8B5CF6);
+  static const purpleLight = Color(0xFFF0E9FE);
+  static const purpleDark = Color(0xFFA78BFA);
+  static const purpleDarkBg = Color(0xFF2A1F4A);
   static const success = Color(0xFF22C55E);
   static const successLight = Color(0xFFDCFCE7);
   static const successDark = Color(0xFF0A2A15);

@@ -65,7 +65,7 @@ class _CreateLockPeriodScreenState extends State<CreateLockPeriodScreen> {
                   const SizedBox(width: 48),
                 ],
               ),
-              const StepDots(total: 4, current: 3),
+              StepDots(total: _draft.kind == WalletType.group ? 4 : 3, current: 2),
 
               Text('Lini unaweza kutoa?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: text)),
               const SizedBox(height: 4),
@@ -210,7 +210,10 @@ class _CreateLockPeriodScreenState extends State<CreateLockPeriodScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pushNamed('/create/confirm', arguments: _draft),
+                  onPressed: () {
+                    final nextRoute = _draft.kind == WalletType.group ? '/create/members' : '/create/confirm';
+                    Navigator.of(context).pushNamed(nextRoute, arguments: _draft);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.blue,
                     foregroundColor: Colors.white,
